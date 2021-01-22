@@ -5,6 +5,7 @@ import controller as ur
 import meme
 import encourage
 import inspire
+import random
 
 client = discord.Client()
 ur_controller = ur.UrController()
@@ -28,23 +29,23 @@ async def on_ready():
           # await run_play(channel)
           
 
-import threading
+meme_yes = ["good. you're welcome 😇", "wonderful wonderful", "Well, I knew you would", "❤️", "You were always my favorite 😊"]
+meme_no = ["well thats to damn bad", "Do me a favor, next time don't ask me fa nuffin", "😡", "💔🥺", "...", "such a nice human 🔥😈"]
 
 @client.event
 async def on_message(message):
   if message.author == client.user:
     return
 
-  print (str(threading.get_ident()))
 
   global last
   global ur_game_last_message_id
 
   if last == 'meme' and message.content.lower() == 'yes':
-    await message.channel.send("good. you're welcome 😇 ")
+    await message.channel.send(random.choice(meme_yes))
     last = 'yes'
   elif last == 'meme' and message.content.lower() == 'no':
-    await message.channel.send("well thats to damn bad")
+    await message.channel.send(random.choice(meme_no))
     last = 'no'
   elif message.content.startswith('$hello'):
     await message.channel.send('Hello!')

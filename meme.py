@@ -52,9 +52,42 @@ async def generate_meme(message):
 async def generate_meme_loop(message):
   global continue_meme_loop_flag
   continue_meme_loop_flag[message.channel.id] = True
+
+  try : 
+    count_string = message.content.split("$gen meme")[1]
+    if count_string == '' :
+      count = 1
+    elif count_string.strip().isnumeric():
+      count = int(count_string)
+      if count > 30 :
+        await message.channel.send('Settle down there big boy, how about we meet in the middle and settle for 30 minutes ehh?')
+        await asyncio.sleep(8)
+        count = 30
+      elif count < 0:
+        count = 1
+    else :
+      await asyncio.sleep(2)
+      await message.channel.send('...')
+      await asyncio.sleep(2)
+      await message.channel.send('...')
+      await asyncio.sleep(2)
+      await message.channel.send('...')
+      await asyncio.sleep(2)
+      await message.channel.send('Who the hell told you how to count?? Please stand up and InTrOdUcE \'{0}\' to the class  '.format(str(count_string).strip()))
+      await asyncio.sleep(8)
+      await message.channel.send('😕')
+      await asyncio.sleep(6)
+      await message.channel.send('I\'ll just assume you mean 1')
+      await asyncio.sleep(2)
+      await message.channel.send('Loading...')
+      await asyncio.sleep(2)
+      count = 1
+  except:
+    count = 1
+
   while continue_meme_loop_flag[message.channel.id]: 
     await generate_meme(message)
-    await asyncio.sleep(60)
+    await asyncio.sleep(count * 60)
   del continue_meme_loop_flag[message.channel.id]
 
 async def end_meme_loop(message):
