@@ -6,13 +6,18 @@ import meme
 import encourage
 import inspire
 import random
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path='.env')
+
 
 client = discord.Client()
+
 ur_controller = ur.UrController()
 
-game_die = '🎲'
-new_piece = '📤'
-end_turn_emoji = '🔚'
+game_die = '\U0001f3b2'
+new_piece = '\U0001f4e4'
+end_turn_emoji = '\U0001f51a'
 
 last = None
 ur_game_last_message_id = -1
@@ -30,17 +35,6 @@ async def on_ready():
                     # await run_play(channel)
 
 
-meme_yes = [
-    "good. you're welcome 😇", "wonderful wonderful", "Well, I knew you would",
-    "❤️", "You were always my favorite 😊"
-]
-meme_no = [
-    "well thats to damn bad",
-    "Do me a favor, next time don't ask me fa nuffin", "😡", "💔🥺", "...",
-    "such a nice human 🔥😈"
-]
-
-
 @client.event
 async def on_message(message):
     if message.author == client.user:
@@ -50,32 +44,29 @@ async def on_message(message):
     global ur_game_last_message_id
 
     if last == 'meme' and message.content.lower() == 'yes':
-        await message.channel.send(random.choice(meme_yes))
+        await meme.handle_yes(message)
         last = 'yes'
     elif last == 'meme' and message.content.lower() == 'no':
-        await message.channel.send(random.choice(meme_no))
+        await meme.handle_no(message)
         last = 'no'
     elif message.content.startswith('$hello'):
         await message.channel.send('Hello!')
         last = 'hello'
     elif message.content.startswith('$inspire'):
-        quote = inspire.get_quote()
-        await message.channel.send(quote)
+        await inspire.handle_inspire(message)
         last = 'quote'
     elif message.content.startswith('$meme'):
-        await meme.handle(message)
+        await meme.handle_meme(message)
         last = 'meme'
     elif any(word in message.content for word in encourage.sad_words):
         await encourage.handle(message)
         last = "encourage"
     elif message.content.startswith("$gen meme"):
-        try:
-            await meme.generate_meme_loop(message)
-        except Exception as e:
-            print("hit exception inside gen meme if statement")
-            print(e)
+        await meme.generate_meme_loop(message)
+        last = "gen meme"
     elif message.content.startswith("$stop gen"):
         await meme.end_meme_loop(message)
+        last = "stop gen"
     elif message.content.startswith("$play ur"):
         ur_controller = ur.UrController()
         display, turn = await ur_controller.handle()

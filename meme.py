@@ -4,10 +4,28 @@ import json
 import discord
 import threading
 import asyncio
+import random
 
 continue_meme_loop_flag = {}
 
-async def handle(message):
+meme_yes = [
+    "good. you're welcome 😇", "wonderful wonderful", "Well, I knew you would",
+    "❤️", "You were always my favorite 😊"
+]
+meme_no = [
+    "well thats to damn bad",
+    "Do me a favor, next time don't ask me fa nuffin", "😡", "💔🥺", "...",
+    "such a nice human 🔥😈"
+]
+
+
+async def handle_yes(message):
+  await message.channel.send(random.choice(meme_yes))
+
+async def handle_no(message):
+  await message.channel.send(random.choice(meme_no))
+
+async def handle_meme(message):
   print (str(threading.get_ident()))
   count = 1
   try : 
