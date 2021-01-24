@@ -8,16 +8,16 @@ import inspire
 import random
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path='.env')
+load_dotenv(dotenv_path=".env")
 
 
 client = discord.Client()
 
 ur_controller = ur.UrController()
 
-game_die = '\U0001f3b2'
-new_piece = '\U0001f4e4'
-end_turn_emoji = '\U0001f51a'
+game_die = "\U0001f3b2"
+new_piece = "\U0001f4e4"
+end_turn_emoji = "\U0001f51a"
 
 last = None
 ur_game_last_message_id = -1
@@ -25,7 +25,7 @@ ur_game_last_message_id = -1
 
 @client.event
 async def on_ready():
-    print('We have logged in as a {0.user}'.format(client))
+    print("We have logged in as a {0.user}".format(client))
 
     for guild in client.guilds:
         if guild.name == "Family Robot":
@@ -43,21 +43,21 @@ async def on_message(message):
     global last
     global ur_game_last_message_id
 
-    if last == 'meme' and message.content.lower() == 'yes':
+    if last == "meme" and message.content.lower() == "yes":
         await meme.handle_yes(message)
-        last = 'yes'
-    elif last == 'meme' and message.content.lower() == 'no':
+        last = "yes"
+    elif last == "meme" and message.content.lower() == "no":
         await meme.handle_no(message)
-        last = 'no'
-    elif message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
-        last = 'hello'
-    elif message.content.startswith('$inspire'):
+        last = "no"
+    elif message.content.startswith("$hello"):
+        await message.channel.send("Hello!")
+        last = "hello"
+    elif message.content.startswith("$inspire"):
         await inspire.handle_inspire(message)
-        last = 'quote'
-    elif message.content.startswith('$meme'):
+        last = "quote"
+    elif message.content.startswith("$meme"):
         await meme.handle_meme(message)
-        last = 'meme'
+        last = "meme"
     elif any(word in message.content for word in encourage.sad_words):
         await encourage.handle(message)
         last = "encourage"
@@ -69,12 +69,10 @@ async def on_message(message):
         last = "stop gen"
     elif message.content.startswith("$play ur"):
         ur_controller = ur.UrController()
-        display, turn = await ur_controller.handle()
+        display, turn = await ur_controller.handle_play_ur()
         embedVar = discord.Embed(
-            title="The Game of Ur",
-            color=0x00ff00,
-            type="rich",
-            author="Pasha")
+            title="The Game of Ur", color=0x00FF00, type="rich", author="Pasha"
+        )
         embedVar.add_field(name="Board", value=display, inline=True)
         embedVar.add_field(name="Turn", value=turn.name, inline=True)
         newMessage = await message.channel.send(embed=embedVar)
@@ -98,10 +96,8 @@ async def on_reaction_add(reaction, user):
         board, dice_roll, moves, turn = await ur_controller.roll_dice()
         message = reaction.message
         embedVar = discord.Embed(
-            title="The Game of Ur",
-            color=0x00ff00,
-            type="rich",
-            author="Pasha")
+            title="The Game of Ur", color=0x00FF00, type="rich", author="Pasha"
+        )
         embedVar.add_field(name="Board", value=board, inline=True)
         embedVar.add_field(name="Turn", value=turn.name, inline=True)
         embedVar.add_field(name="Dice Roll", value=dice_roll, inline=True)
@@ -119,10 +115,8 @@ async def on_reaction_add(reaction, user):
         turn = ur_controller.get_turn()
         message = reaction.message
         embedVar = discord.Embed(
-            title="The Game of Ur",
-            color=0x00ff00,
-            type="rich",
-            author="Pasha")
+            title="The Game of Ur", color=0x00FF00, type="rich", author="Pasha"
+        )
         embedVar.add_field(name="Board", value=board, inline=True)
         embedVar.add_field(name="Turn", value=turn.name, inline=True)
         new_message = await message.channel.send(embed=embedVar)
@@ -131,4 +125,4 @@ async def on_reaction_add(reaction, user):
 
 
 keep_alive()
-client.run(os.getenv('TOKEN'))
+client.run(os.getenv("TOKEN"))
