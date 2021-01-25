@@ -1,7 +1,6 @@
 import discord
 import os
 
-from discord import emoji
 from keep_alive import keep_alive
 import controller as ur
 import meme
