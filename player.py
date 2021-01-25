@@ -11,3 +11,9 @@ class Player:
             self.tokens.append(Player_Token(name, symbol))
 
         pass
+
+    def get_token(self):
+        if len(self.tokens) < 1:
+            return None
+        return self.tokens[0]
+

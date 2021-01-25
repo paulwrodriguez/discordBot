@@ -1,11 +1,12 @@
 import discord
 import os
+
+from discord import emoji
 from keep_alive import keep_alive
 import controller as ur
 import meme
 import encourage
 import inspire
-import random
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=".env")
@@ -22,6 +23,7 @@ end_turn_emoji = "\U0001f51a"
 last = None
 ur_game_last_message_id = -1
 
+emojis = ["{}\N{COMBINING ENCLOSING KEYCAP}".format(num) for num in range(1, 8)]
 
 @client.event
 async def on_ready():
@@ -42,6 +44,7 @@ async def on_message(message):
 
     global last
     global ur_game_last_message_id
+    global ur_controller
 
     if last == "meme" and message.content.lower() == "yes":
         await meme.handle_yes(message)
@@ -69,15 +72,8 @@ async def on_message(message):
         last = "stop gen"
     elif message.content.startswith("$play ur"):
         ur_controller = ur.UrController()
-        display, turn = await ur_controller.handle_play_ur()
-        embedVar = discord.Embed(
-            title="The Game of Ur", color=0x00FF00, type="rich", author="Pasha"
-        )
-        embedVar.add_field(name="Board", value=display, inline=True)
-        embedVar.add_field(name="Turn", value=turn.name, inline=True)
-        newMessage = await message.channel.send(embed=embedVar)
-        await newMessage.add_reaction(game_die)
-        ur_game_last_message_id = newMessage.id
+        new_message = await ur_controller.handle_play_ur(message)
+        ur_game_last_message_id = new_message.id
     else:
         last = None
 
@@ -85,6 +81,8 @@ async def on_message(message):
 @client.event
 async def on_reaction_add(reaction, user):
     global ur_game_last_message_id
+    global ur_controller
+    global emojis
 
     if user == client.user:
         return
@@ -93,35 +91,20 @@ async def on_reaction_add(reaction, user):
         return
 
     if reaction.emoji == game_die:
-        board, dice_roll, moves, turn = await ur_controller.roll_dice()
-        message = reaction.message
-        embedVar = discord.Embed(
-            title="The Game of Ur", color=0x00FF00, type="rich", author="Pasha"
-        )
-        embedVar.add_field(name="Board", value=board, inline=True)
-        embedVar.add_field(name="Turn", value=turn.name, inline=True)
-        embedVar.add_field(name="Dice Roll", value=dice_roll, inline=True)
-        new_message = await message.channel.send(embed=embedVar)
-        if moves == None:
-            await new_message.add_reaction(new_piece)
+        new_message = await ur_controller.handle_dice_roll(reaction.message)
         ur_game_last_message_id = new_message.id
+        
     elif reaction.emoji == new_piece:
         new_message = await ur_controller.new_piece(reaction.message)
         ur_game_last_message_id = new_message.id
         await new_message.add_reaction(end_turn_emoji)
     elif reaction.emoji == end_turn_emoji:
-        ur_controller.update_turn()
-        board = ur_controller.get_printed_board()
-        turn = ur_controller.get_turn()
-        message = reaction.message
-        embedVar = discord.Embed(
-            title="The Game of Ur", color=0x00FF00, type="rich", author="Pasha"
-        )
-        embedVar.add_field(name="Board", value=board, inline=True)
-        embedVar.add_field(name="Turn", value=turn.name, inline=True)
-        new_message = await message.channel.send(embed=embedVar)
-        await new_message.add_reaction(game_die)
+        new_message = await ur_controller.handle_end_turn(reaction.message)
         ur_game_last_message_id = new_message.id
+    elif reaction.emoji in emojis:
+        new_message = await ur_controller.handle_move_piece(reaction)
+        ur_game_last_message_id = new_message.id
+
 
 
 keep_alive()
